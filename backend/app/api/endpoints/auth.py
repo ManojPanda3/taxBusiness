@@ -6,22 +6,27 @@ from pymongo import MongoClient
 from datetime import datetime, timedelta
 from typing import Optional
 import os
-
-MONGO_DETAILS = os.getenv("MONGODB_URI")
+import dotenv
+dotenv.load_dotenv()
+# MongoDB Connection
+MONGO_DETAILS = os.getenv("MONGODB_URI", "mongodb://localhost:27017")
+print(MONGO_DETAILS)
 client = MongoClient(MONGO_DETAILS)
 db = client.taxBusiness
 users_collection = db.get_collection("users")
 
-SECRET_KEY = os.getenv("JWT_SECRET", "backup_screate")
+# JWT Configuration
+SECRET_KEY = os.getenv("JWT_SECRET", "backup_secret")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
+# Password Hashing
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 router = APIRouter()
 
-
+# Utility Functions
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
 
@@ -31,7 +36,15 @@ def get_password_hash(password):
 
 
 def get_user(username: str):
-    user = users_collection.find_one({"username": username})
+    return users_collection.find_one({"username": username})
+
+
+def create_user(username: str, password: str):
+    user = {
+        "username": username,
+        "hashed_password": get_password_hash(password),
+    }
+    users_collection.insert_one(user)
     return user
 
 
@@ -46,13 +59,22 @@ def authenticate_user(username: str, password: str):
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode = data.copy()
-    if expires_delta:
-        expire = datetime.utcnow() + expires_delta
-    else:
-        expire = datetime.utcnow() + timedelta(minutes=15)
+    expire = datetime.utcnow() + (expires_delta or timedelta(minutes=15))
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
+
+# Routes
+@router.post("/register", response_model=dict)
+async def register_user(form_data: OAuth2PasswordRequestForm = Depends()):
+    user = get_user(form_data.username)
+    if user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Username already registered",
+        )
+    create_user(form_data.username, form_data.password)
+    return {"msg": "User created successfully"}
 
 
 @router.post("/token", response_model=dict)
