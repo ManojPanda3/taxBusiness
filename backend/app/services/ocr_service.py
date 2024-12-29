@@ -1,33 +1,29 @@
-import logging
+# backend/app/services/ocr_service.py
+import io
+from typing import Dict, List
+
+from app.core.settings import settings
+from google.cloud import vision
 
 
 class OCRService:
-    def _init_(self):
-        credentials = service_account.Credentials.from_service_account_file(
-            settings.google_cloud_credentials)
-        self.client = vision.ImageAnnotatorClient(credentials=credentials)
-
-    async def extract_receipt_data(self, image_content: bytes) -> dict:
+    def __init__(self):
+        print("ocr class object created ")
+    async def extract_receipt_data(self, image_content: bytes) -> Dict:
         """Extract text from receipt images using Google Cloud Vision API."""
-        try:
-            image = vision.Image(content=image_content)
-            response = self.client.text_detection(image=image)
-            texts = response.text_annotations
+        image = vision.Image(content=image_content)
+        response = self.client.text_detection(image=image)
+        texts = response.text_annotations
 
-            if not texts:
-                return {"error": "No text found in image"}
+        if not texts:
+            return {"error": "No text found in image"}
 
-            # Parse the extracted text to identify relevant fields
-            extracted_data = self._parse_receipt_text(texts[0].description)
-            return extracted_data
-        except Exception as e:
-            logging.error(f"Error extracting receipt data: {e}")
-            return {"error": "Failed to process image"}
+        # Parse the extracted text to identify relevant fields
+        extracted_data = self._parse_receipt_text(texts[0].description)
+        return extracted_data
 
-    def _parse_receipt_text(self, text: str) -> dict:
+    def _parse_receipt_text(self, text: str) -> Dict:
         """Parse extracted text to identify amount, date, vendor, etc."""
-        import re  # Ensure regex module is imported
-
         lines = text.split('\n')
         data = {
             "total_amount": None,
@@ -35,20 +31,15 @@ class OCRService:
             "vendor": None,
             "items": []
         }
-
+        
+        # Implement receipt parsing logic here
+        # This is a simplified version - you'd want to add more robust parsing
         for line in lines:
-            # Extract amounts using regex
-            amount_match = re.search(r'\$\d+(\.\d{2})?', line)
-            if amount_match:
-                data['total_amount'] = amount_match.group()
-
-            # Extract dates using regex
-            date_match = re.search(r'\b\d{2}/\d{2}/\d{4}\b', line)
-            if date_match:
-                data['date'] = date_match.group()
-
-            # Example logic to identify vendor, can be more complex
-            if "vendor" in line.lower():
-                data['vendor'] = line.split(':')[-1].strip()
-
+            if "$" in line:  # Look for amounts
+                # Extract amount logic
+                pass
+            if "/" in line:  # Look for dates
+                # Extract date logic
+                pass
+            
         return data
