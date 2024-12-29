@@ -1,18 +1,17 @@
 # backend/app/main.py
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from app.core.settings import Settings
 from app.api.endpoints import auth, expenses, tax_alerts, forecasting
 from dotenv import load_dotenv
 load_dotenv()
-
 app = FastAPI(title="Tax Management System")
+
 
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "*"],
-    allow_credentials=True,
+    allow_origins=["http://127.0.0.1:8000", "*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )

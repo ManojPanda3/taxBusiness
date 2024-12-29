@@ -5,8 +5,10 @@ from passlib.context import CryptContext
 from pymongo import MongoClient
 from datetime import datetime, timedelta
 from typing import Optional
+from app.api.deps import DB
 import os
 import dotenv
+
 dotenv.load_dotenv()
 # MongoDB Connection
 MONGO_DETAILS = os.getenv("MONGODB_URI", "mongodb://localhost:27017")
@@ -27,6 +29,8 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 router = APIRouter()
 
 # Utility Functions
+
+
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
 
@@ -65,6 +69,8 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     return encoded_jwt
 
 # Routes
+
+
 @router.post("/register", response_model=dict)
 async def register_user(form_data: OAuth2PasswordRequestForm = Depends()):
     user = get_user(form_data.username)
@@ -78,7 +84,8 @@ async def register_user(form_data: OAuth2PasswordRequestForm = Depends()):
 
 
 @router.post("/token", response_model=dict)
-async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
+async def login_for_access_token(db2: DB, form_data: OAuth2PasswordRequestForm = Depends()):
+    print(db2)
     user = authenticate_user(form_data.username, form_data.password)
     if not user:
         raise HTTPException(

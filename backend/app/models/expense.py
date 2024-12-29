@@ -12,8 +12,10 @@ class ExpenseBase(BaseModel):
     category: Optional[str] = None
     description: Optional[str] = None
 
+
 class ExpenseCreate(ExpenseBase):
     receipt_image: Optional[str] = None
+
 
 class Expense(ExpenseBase):
     id: str
@@ -22,6 +24,7 @@ class Expense(ExpenseBase):
 
     class Config:
         from_attributes = True
+
 
 class ReceiptResponse(BaseModel):
     id: str

@@ -9,26 +9,30 @@ from fastapi import APIRouter, File, UploadFile
 router = APIRouter()
 ocr_service = OCRService()
 
+
 @router.post("/upload-receipt/", response_model=ReceiptResponse)
 async def upload_receipt(
     db: DB,
     current_user: CurrentUser,
     file: UploadFile = File(...)
 ):
+    print(db)
     contents = await file.read()
     receipt_data = await ocr_service.extract_receipt_data(contents)
-    
+
     expense = {
         "user_id": current_user.id,
         **receipt_data,
         "receipt_image": file.filename
     }
     result = await db.expenses.insert_one(expense)
-    
+
+    print("Working...")
     return ReceiptResponse(
         id=str(result.inserted_id),
         **receipt_data
     )
+
 
 @router.get("/list/", response_model=List[Expense])
 async def list_expenses(
