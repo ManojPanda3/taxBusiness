@@ -3,8 +3,8 @@ from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.settings import Settings
 from app.api.endpoints import auth, expenses, tax_alerts, forecasting
-from dotenv import loadenv
-loadenv()
+from dotenv import load_dotenv
+load_dotenv()
 
 app = FastAPI(title="Tax Management System")
 
