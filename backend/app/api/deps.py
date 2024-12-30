@@ -15,7 +15,6 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/auth/token")
 
 
 async def get_db():
-    print(settings.mongodb_uri)
     client = AsyncIOMotorClient(settings.mongodb_uri)
     db = client.taxBusiness
     try:
@@ -29,13 +28,12 @@ async def get_db():
 async def get_current_user(
     token: str = Depends(oauth2_scheme), db: AsyncIOMotorClient = Depends(get_db)
 ) -> User:
-
+    print("jwt %s" % settings.jwt_secret)
     try:
         # Decode the token
-        payload = jwt.decode(token, settings.jwt_secret, algorithms=["HS256"])
-        print(f"UserToken payload: {payload}")
+        payload = jwt.decode(token, settings.jwt_secret,
+                             algorithms=["HS256"])
         user_name: str = payload.get("sub")
-        print(user_name)
         if not user_name:
             raise ValueError("User name not found in token")
     except JWTError:
@@ -53,9 +51,7 @@ async def get_current_user(
 
     # geting user data from db
     user_data = await db.users.find_one({"username": "manoj_panda"})
-    print(user_data)
     user_data = await db.users.find_one({"username": user_name})
-    print(f"UserData : {user_data}")
     if not user_data:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -65,11 +61,10 @@ async def get_current_user(
     # Return the User object
     return User(
         id=str(user_data["_id"]),
-        username=user_data["username"],
-        password=user_data["hashed_password"]
+        username=str(user_data["username"]),
+        password=str(user_data["hashed_password"])
     )
 
 # Annotated types for dependencies
 DB = Annotated[Any, Depends(get_db)]
 CurrentUser = Annotated[User, Depends(get_current_user)]
-

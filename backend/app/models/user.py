@@ -23,9 +23,9 @@ class UserInDB(UserBase):
         from_attributes = True
 
 
-class User(UserBase):
+class User(BaseModel):
     id: str
-    hashed_password: str
+    password: str
     username: str
 
     class Config:

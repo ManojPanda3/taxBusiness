@@ -1,5 +1,6 @@
 # backend/app/api/endpoints/expenses.py
 from typing import List
+from fastapi import HTTPException, status
 
 from app.api.deps import DB, CurrentUser
 from app.models.expense import Expense, ExpenseCreate, ReceiptResponse
@@ -16,22 +17,29 @@ async def upload_receipt(
     current_user: CurrentUser,
     file: UploadFile = File(...)
 ):
-    print(db)
-    contents = await file.read()
-    receipt_data = await ocr_service.extract_receipt_data(contents)
+    try:
+        contents = await file.read()
+        receipt_data = await ocr_service.extract_receipt_data(contents)
+        print(receipt_data)
 
-    expense = {
-        "user_id": current_user.id,
-        **receipt_data,
-        "receipt_image": file.filename
-    }
-    result = await db.expenses.insert_one(expense)
+        expense = {
+            # "user_id": current_user.id,
+            **receipt_data,
+            "receipt_image": file.filename
+        }
+        result = await db.expenses.insert_one(expense)
 
-    print("Working...")
-    return ReceiptResponse(
-        id=str(result.inserted_id),
-        **receipt_data
-    )
+        return ReceiptResponse(
+            id=str(result.inserted_id),
+            **receipt_data
+        )
+    except Exception as err:
+        print("Error while processing receipt in upload_receipt")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
 
 
 @router.get("/list/", response_model=List[Expense])
