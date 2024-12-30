@@ -1,9 +1,11 @@
+import "./App.css"
 import React, { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { Bell, Menu, Upload, Plus, FileText, CheckCircle } from 'lucide-react';
 import { taxService, expenseService, forecastingService } from './services/api'; // Import services
 
 const App = () => {
+  useEffect(() => console.log("Loaded app", []))
   const [chartData] = useState([
     { month: 'Jan', expenses: 4500 },
     { month: 'Feb', expenses: 5200 },
@@ -12,7 +14,7 @@ const App = () => {
     { month: 'May', expenses: 5100 },
     { month: 'Jun', expenses: 6200 },
   ]);
-  
+
   const [taxAlerts, setTaxAlerts] = useState([]);
   const [forecast, setForecast] = useState(null);
   const [uploadStatus, setUploadStatus] = useState(null);
@@ -57,7 +59,7 @@ const App = () => {
       Array.from(files).forEach((file) => {
         formData.append('files', file);
       });
-      
+
       const response = await expenseService.uploadReceipt(formData);
       setUploadStatus('Upload successful!');
       console.log('Upload successful:', response);
@@ -68,7 +70,7 @@ const App = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-950 to-indigo-900 text-gray-100">
+    <div className="bg-gradient-to-br from-indigo-950 w-full to-indigo-900 text-gray-100 m-0 p-0">
       <nav className="fixed top-0 z-50 w-full bg-opacity-70 backdrop-blur-lg border-b border-gray-700">
         <div className="px-3 py-3 lg:px-5 lg:pl-3">
           <div className="flex items-center justify-between">
@@ -92,8 +94,8 @@ const App = () => {
         </div>
       </nav>
 
-      <div className="pt-20 px-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
+      <div className="px-4 pt-[25rem]">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6 m-6">
           <div className="bg-white bg-opacity-10 backdrop-blur-lg rounded-xl p-6 border border-white border-opacity-20 shadow-lg">
             <h3 className="text-lg font-medium">Tax Alerts</h3>
             <div className="space-y-3">
