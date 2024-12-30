@@ -14,8 +14,7 @@ ocr_service = OCRService()
 @router.post("/upload-receipt/", response_model=ReceiptResponse)
 async def upload_receipt(
     db: DB,
-    current_user: CurrentUser,
-    file: UploadFile = File(...)
+    current_user: CurrentUser, file: UploadFile = File(...)
 ):
     try:
         contents = await file.read()
@@ -24,7 +23,7 @@ async def upload_receipt(
 
         expense = {
             # "user_id": current_user.id,
-            **receipt_data,
+            "ammount": str(receipt_data),
             "receipt_image": file.filename
         }
         result = await db.expenses.insert_one(expense)
@@ -34,7 +33,7 @@ async def upload_receipt(
             **receipt_data
         )
     except Exception as err:
-        print("Error while processing receipt in upload_receipt")
+        print("Error while processing receipt in upload_receipt :%s" % err)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or expired token",
