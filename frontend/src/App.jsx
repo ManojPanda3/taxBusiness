@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { Bell, Menu, Upload, Plus, FileText, CheckCircle } from 'lucide-react';
+import { taxService, expenseService, forecastingService } from './services/api'; // Import services
 
 const App = () => {
   const [chartData] = useState([
@@ -11,6 +12,34 @@ const App = () => {
     { month: 'May', expenses: 5100 },
     { month: 'Jun', expenses: 6200 },
   ]);
+  
+  const [taxAlerts, setTaxAlerts] = useState([]);
+  const [forecast, setForecast] = useState(null);
+  const [uploadStatus, setUploadStatus] = useState(null);
+
+  // Fetch tax alerts on component mount
+  useEffect(() => {
+    const fetchTaxAlerts = async () => {
+      try {
+        const alerts = await taxService.getAlerts();
+        setTaxAlerts(alerts);
+      } catch (error) {
+        console.error('Failed to fetch alerts:', error);
+      }
+    };
+
+    const fetchForecast = async () => {
+      try {
+        const data = await forecastingService.predictTaxLiability();
+        setForecast(data);
+      } catch (error) {
+        console.error('Failed to fetch forecast:', error);
+      }
+    };
+
+    fetchTaxAlerts();
+    fetchForecast();
+  }, []);
 
   const handleDragOver = (e) => {
     e.preventDefault();
@@ -22,14 +51,24 @@ const App = () => {
     handleFiles(files);
   };
 
-  const handleFiles = (files) => {
-    // Implement file upload logic here
-    console.log('Files to upload:', files);
+  const handleFiles = async (files) => {
+    try {
+      const formData = new FormData();
+      Array.from(files).forEach((file) => {
+        formData.append('files', file);
+      });
+      
+      const response = await expenseService.uploadReceipt(formData);
+      setUploadStatus('Upload successful!');
+      console.log('Upload successful:', response);
+    } catch (error) {
+      setUploadStatus('Upload failed. Please try again.');
+      console.error('Upload failed:', error);
+    }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-950 to-indigo-900 text-gray-100">
-      {/* Navigation */}
       <nav className="fixed top-0 z-50 w-full bg-opacity-70 backdrop-blur-lg border-b border-gray-700">
         <div className="px-3 py-3 lg:px-5 lg:pl-3">
           <div className="flex items-center justify-between">
@@ -53,53 +92,28 @@ const App = () => {
         </div>
       </nav>
 
-      {/* Main Content */}
       <div className="pt-20 px-4">
-        {/* Dashboard Overview */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
-          {/* Tax Savings Card */}
-          <div className="bg-white bg-opacity-10 backdrop-blur-lg rounded-xl p-6 border border-white border-opacity-20 shadow-lg hover:scale-102 transition-transform">
-            <div className="flex justify-between items-start">
-              <div>
-                <h3 className="text-lg font-medium">Potential Tax Savings</h3>
-                <p className="text-3xl font-bold mt-2">$12,450</p>
-              </div>
-              <div className="relative w-16 h-16">
-                <svg className="w-full h-full transform -rotate-90">
-                  <circle
-                    className="text-indigo-600"
-                    cx="32"
-                    cy="32"
-                    r="28"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                    fill="none"
-                    strokeDasharray="175.9 175.9"
-                    strokeDashoffset="44"
-                  />
-                </svg>
-                <span className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-sm font-medium">
-                  75%
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Tax Alerts Card */}
           <div className="bg-white bg-opacity-10 backdrop-blur-lg rounded-xl p-6 border border-white border-opacity-20 shadow-lg">
-            <h3 className="text-lg font-medium mb-4">Tax Alerts</h3>
+            <h3 className="text-lg font-medium">Tax Alerts</h3>
             <div className="space-y-3">
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-red-500 bg-opacity-20">
-                <Bell className="w-6 h-6 text-red-400" />
-                <div>
-                  <p className="font-medium">Quarterly Tax Payment Due</p>
-                  <p className="text-sm opacity-75">Due in 5 days</p>
-                </div>
-              </div>
+              {taxAlerts.length > 0 ? (
+                taxAlerts.map((alert, index) => (
+                  <div key={index} className="flex items-center gap-3 p-3 rounded-lg bg-red-500 bg-opacity-20">
+                    <Bell className="w-6 h-6 text-red-400" />
+                    <div>
+                      <p className="font-medium">{alert.title}</p>
+                      <p className="text-sm opacity-75">{alert.message}</p>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p>No alerts available.</p>
+              )}
             </div>
           </div>
 
-          {/* Quick Actions Card */}
+          {/* Quick Actions Section */}
           <div className="bg-white bg-opacity-10 backdrop-blur-lg rounded-xl p-6 border border-white border-opacity-20 shadow-lg">
             <h3 className="text-lg font-medium mb-4">Quick Actions</h3>
             <div className="grid grid-cols-2 gap-3">
@@ -129,6 +143,9 @@ const App = () => {
             </p>
             <p className="text-sm opacity-75">Supported formats: PNG, JPG, PDF</p>
           </div>
+          {uploadStatus && (
+            <div className="mt-4 text-center text-sm text-green-500">{uploadStatus}</div>
+          )}
         </div>
 
         {/* AI Analysis Section */}
@@ -161,7 +178,7 @@ const App = () => {
                   </li>
                   <li className="flex items-center gap-2">
                     <CheckCircle className="w-5 h-5 text-green-400" />
-                    Equipment Depreciation: $3,200
+                    Retirement Contributions: $3,100
                   </li>
                 </ul>
               </div>
