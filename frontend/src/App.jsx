@@ -93,7 +93,7 @@ const App = () => {
         </div>
       </nav>
 
-      <div className="px-4 pt-[25rem]">
+      <div className="px-4 pt-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6 m-6">
           <div className="bg-white bg-opacity-10 backdrop-blur-lg rounded-xl p-6 border border-white border-opacity-20 shadow-lg">
             <h3 className="text-lg font-medium">Tax Alerts</h3>
