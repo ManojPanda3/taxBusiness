@@ -67,7 +67,8 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
 @router.post("/register", response_model=dict)
 async def register_user(db: DB, form_data: OAuth2PasswordRequestForm = Depends()):
     users_collection = db.users
-    user = get_user(users_collection, form_data.username)
+    user = await get_user(users_collection, form_data.username)
+    print("User...", user)
     if user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

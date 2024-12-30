@@ -1,26 +1,36 @@
 # backend/app/api/deps.py
 from typing import Annotated, Any
-
-from app.core.settings import settings
 from app.models.user import User
 from fastapi import Depends, HTTPException, status
+from app.core.settings import settings
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from motor.motor_asyncio import AsyncIOMotorClient
 
 # OAuth2PasswordBearer instance
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/auth/token")
+client = None
 
-# Dependency to get the database connection
+
+def define_db_management(app):
+    global client
+
+    @app.on_event("startup")
+    async def startup_db_client():
+        global client
+        client = AsyncIOMotorClient(settings.mongodb_uri)
+
+    @app.on_event("shutdown")
+    async def shutdown_db_client():
+        global client
+        client.close()
 
 
 async def get_db():
-    client = AsyncIOMotorClient(settings.mongodb_uri)
+    if not client:
+        raise Exception("Error mongodb not started")
     db = client.taxBusiness
-    try:
-        yield db
-    finally:
-        client.close()
+    yield db
 
 # Dependency to get the current user
 

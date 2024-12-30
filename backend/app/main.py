@@ -2,10 +2,9 @@
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.endpoints import auth, expenses, tax_alerts, forecasting
-
+from app.api.deps import define_db_management
 app = FastAPI(title="Tax Management System")
-
-
+define_db_management(app)
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,

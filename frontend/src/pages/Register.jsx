@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Lock, User } from 'lucide-react';
 
@@ -7,6 +8,7 @@ const Register = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
+  const navigate = useNavigate();
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -24,9 +26,12 @@ const Register = () => {
           },
         }
       );
+      // data = response.json();
+      console.log(response)
       setMessage('Registration successful! Please log in.');
-      setError(''); // Clear any previous error messages
+      // navigate("/")
     } catch (err) {
+      console.error(err)
       if (err.response && err.response.data) {
         setError(err.response.data.detail);
       } else {
