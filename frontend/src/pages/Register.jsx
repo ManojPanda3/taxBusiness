@@ -13,7 +13,7 @@ const Register = () => {
     e.preventDefault();
     try {
       const response = await axios.post(
-        'http://127.0.0.1:8000/api/auth/register',
+        '/api/auth/register',
         new URLSearchParams({
           username,
           password,
@@ -41,7 +41,7 @@ const Register = () => {
       <h2 className="register-title">Register</h2>
       <form onSubmit={handleRegister} className="register-form">
         <div className="input-group">
-          <User  className="input-icon" />
+          <User className="input-icon" />
           <input
             type="text"
             placeholder="Username"

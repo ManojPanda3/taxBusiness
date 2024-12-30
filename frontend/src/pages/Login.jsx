@@ -11,7 +11,7 @@ const Login = ({ onLoginSuccess }) => {
     e.preventDefault();
     try {
       const response = await axios.post(
-        'http://127.0.0.1:8000/api/auth/token',
+        '/api/auth/token',
         new URLSearchParams({
           username,
           password,
@@ -34,7 +34,7 @@ const Login = ({ onLoginSuccess }) => {
       <h2 className="login-title">Login</h2>
       <form onSubmit={handleLogin} className="login-form">
         <div className="input-group">
-          <User  className="input-icon" />
+          <User className="input-icon" />
           <input
             type="text"
             placeholder="Username"
