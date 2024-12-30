@@ -25,7 +25,7 @@ class OCRService:
             "response_schema": content.Schema(
                 type=content.Type.OBJECT,
                 enum=[],
-                required=["total_amount"],
+                required=["total_amount", "items"],
                 properties={
                     "total_amount": content.Schema(
                         type=content.Type.NUMBER,
@@ -41,7 +41,7 @@ class OCRService:
                         items=content.Schema(
                             type=content.Type.OBJECT,
                             enum=[],
-                            required=["name", "price"],
+                            required=[],
                             properties={
                                 "name": content.Schema(
                                     type=content.Type.STRING,

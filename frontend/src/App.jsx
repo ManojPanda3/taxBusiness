@@ -5,7 +5,6 @@ import { Bell, Menu, Upload, Plus, FileText, CheckCircle } from 'lucide-react';
 import { taxService, expenseService, forecastingService } from './services/api'; // Import services
 
 const App = () => {
-  useEffect(() => console.log("Loaded app", []))
   const [chartData] = useState([
     { month: 'Jan', expenses: 4500 },
     { month: 'Feb', expenses: 5200 },
