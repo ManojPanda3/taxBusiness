@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Lock, User } from 'lucide-react';
 
-const Login = ({ onLoginSuccess }) => {
+const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -23,9 +25,11 @@ const Login = ({ onLoginSuccess }) => {
           },
         }
       );
-      onLoginSuccess(response.data.access_token);
+      const accessToken = response.data.access_token
+      document.cookie = `access_token=${accessToken}; expires=Fri, 31 Dec 2099 23:59:59 GMT; path=/`;
+      navigate("/")
     } catch (err) {
-      setError('Login failed. Please check your credentials.');
+      setError('Login failed. Please check your credentials. \nerror: ' + err);
     }
   };
 

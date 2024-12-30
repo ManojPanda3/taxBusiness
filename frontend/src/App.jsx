@@ -93,7 +93,7 @@ const App = () => {
         </div>
       </nav>
 
-      <div className="px-4 pt-10">
+      <div className="px-4 pt-10 pb-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6 m-6">
           <div className="bg-white bg-opacity-10 backdrop-blur-lg rounded-xl p-6 border border-white border-opacity-20 shadow-lg">
             <h3 className="text-lg font-medium">Tax Alerts</h3>
@@ -150,7 +150,7 @@ const App = () => {
         </div>
 
         {/* AI Analysis Section */}
-        <div className="bg-white bg-opacity-10 backdrop-blur-lg rounded-xl p-6 m-6 border border-white border-opacity-20">
+        <div className="bg-white bg-opacity-10 backdrop-blur-lg rounded-xl p-6 m-6 border border-white border-opacity-20  pb-10 mb-0">
           <h2 className="text-2xl font-semibold mb-4">AI Tax Analysis</h2>
           <div className="grid md:grid-cols-2 gap-6">
             <div className="h-64">
