@@ -32,3 +32,7 @@ class ReceiptResponse(BaseModel):
     date: Optional[datetime]
     vendor: Optional[str]
     receipt_image: Optional[str]
+
+
+class ConfirmExpenseRequest(Expense):
+    confirm: bool

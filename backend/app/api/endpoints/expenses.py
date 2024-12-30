@@ -5,11 +5,12 @@ from fastapi import APIRouter, HTTPException, status, File, UploadFile, Depends
 from app.api.deps import DB, CurrentUser
 from app.models.expense import Expense, ExpenseCreate, ReceiptResponse
 from app.services.ocr_service import OCRService
-from app.schemas.expense import ConfirmExpenseRequest
+from app.models.expense import ConfirmExpenseRequest
 from bson import ObjectId
 
 router = APIRouter()
 ocr_service = OCRService()
+
 
 @router.post("/upload-receipt/", response_model=ReceiptResponse)
 async def upload_receipt(
@@ -31,7 +32,8 @@ async def upload_receipt(
         analyzed_data = {
             "amount": receipt_data.get("total_amount", 0.0),
             "merchant": receipt_data.get("vendor", ""),
-            "category": receipt_data.get("category", "Uncategorized"),  # Add logic to extract or assign a category
+            # Add logic to extract or assign a category
+            "category": receipt_data.get("category", "Uncategorized"),
             "upload_date": datetime.utcnow(),
             "is_tax_deductible": False,  # Default value until user confirms
             "deduction_reason": None,  # Default value until user provides input
@@ -106,6 +108,7 @@ async def confirm_receipt(
             detail="Failed to confirm receipt"
         )
 
+
 @router.get("/list/", response_model=List[Expense])
 async def list_expenses(
     db: DB,
@@ -116,9 +119,11 @@ async def list_expenses(
     """
     Lists all expenses for the current user with optional pagination.
     """
-    cursor = db.expenses.find({"user_id": current_user.id}).skip(skip).limit(limit)
+    cursor = db.expenses.find(
+        {"user_id": current_user.id}).skip(skip).limit(limit)
     expenses = await cursor.to_list(length=limit)
     return [Expense(**expense, id=str(expense["_id"])) for expense in expenses]
+
 
 @router.put("/update-collection/{expense_id}")
 async def update_collection(
