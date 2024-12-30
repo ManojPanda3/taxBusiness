@@ -1,6 +1,4 @@
-# backend/app/services/ocr_service.py
 import io
-
 from app.core.settings import settings
 from google.cloud import vision
 from google.oauth2 import service_account
@@ -8,7 +6,7 @@ import logging
 
 
 class OCRService:
-    def _init_(self):
+    def __init__(self):  # Corrected the method name
         credentials = service_account.Credentials.from_service_account_file(
             settings.google_cloud_credentials)
         self.client = vision.ImageAnnotatorClient(credentials=credentials)
@@ -41,7 +39,6 @@ class OCRService:
         }
 
         # Implement receipt parsing logic here
-        # This is a simplified version - you'd want to add more robust parsing
         for line in lines:
             if "$" in line:  # Look for amounts
                 # Extract amount logic
